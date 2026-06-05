@@ -325,17 +325,19 @@ spec:
                 - watch
           serviceAccountName: run-once-duration-override-operator
       deployments:
-        - name: run-once-duration-override-operator
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
+      - name: run-once-duration-override-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              runoncedurationoverride.operator: "true"
+          template:
+            metadata:
+              name: runoncedurationoverride
+              annotations:
+                openshift.io/required-scc: restricted-v2
+              labels:
                 runoncedurationoverride.operator: "true"
-            template:
-              metadata:
-                name: runoncedurationoverride
-                labels:
-                  runoncedurationoverride.operator: "true"
               spec:
                 securityContext:
                   runAsNonRoot: true
@@ -343,6 +345,7 @@ spec:
                     type: RuntimeDefault
                 containers:
                   - name: run-once-duration-override-operator
+                    terminationMessagePolicy: FallbackToLogsOnError
                     securityContext:
                       allowPrivilegeEscalation: false
                       readOnlyRootFilesystem: true
@@ -376,6 +379,7 @@ spec:
                       httpGet:
                         path: /healthz
                         port: 8080
+                      initialDelaySeconds: 10
                     livenessProbe:
                       httpGet:
                         path: /healthz
